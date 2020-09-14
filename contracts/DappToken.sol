@@ -34,6 +34,7 @@ contract DappToken{
 	constructor(uint256 _initSupply) public{
 		//balanceOf[0] is the balance of the admin
 		balanceOf[msg.sender] = _initSupply;
+		totalSupply = _initSupply;
 		name	 = 'Luong Token';
 		symbol   = 'LTC';
 		standard = 'Luong Token standard v1.0';
@@ -57,7 +58,7 @@ contract DappToken{
 	//i.e: i want to approve account B spend an amount of C token
 	function approve(address _spender, uint256 _value) public returns(bool success){
 		//allowance: how much i allow spender to spend
-		allowance[msg.sender][_spender] = _value;
+		allowance[msg.sender][_spender] += _value;
 
 		//approve event
 		emit Approval(msg.sender, _spender, _value);
@@ -69,17 +70,18 @@ contract DappToken{
 	//transfer from function: handle for delegated transfer(dai dien chuyen nhuong)
 	function transferFrom(address _from, address _to, uint256 _value) public returns (bool success){
 		//balance of mine must be bigger than _value
-		require(balanceOf[_from] >= _value, 'not enough token');
+		require(balanceOf[_from] >= _value);
 		//B calls this function and it requires my allowance is larger than _value
 		require(allowance[_from][msg.sender] >= _value);
-		//change the balances
+		// //change the balances
 		balanceOf[_from] -= _value;
 		balanceOf[_to]	 += _value;
 
+		allowance[_from][msg.sender] -= _value;
 		//transfer event
 		emit Transfer(_from, _to, _value);
 
-		//return result
+		// //return result
 		return true;
 	}
 
